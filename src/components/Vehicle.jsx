@@ -1,7 +1,7 @@
 // import React, { useState, useEffect } from 'react';
 // import { initializeApp } from 'firebase/app';
 // import { getDatabase, ref, onValue } from 'firebase/database';
-// import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+// import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // // Firebase Configuration
 // const firebaseConfig = {
@@ -32,7 +32,6 @@
 //   const [historyData, setHistoryData] = useState([]);
 //   const [controlHistory, setControlHistory] = useState([]);
   
-//   // Track activation times and counts
 //   const [activationLogs, setActivationLogs] = useState([]);
 //   const [activationCounts, setActivationCounts] = useState({
 //     Accelerator: 0,
@@ -41,7 +40,6 @@
 //     Sound: 0
 //   });
 
-//   // Track previous state to detect 0 to 1 transition
 //   const [previousState, setPreviousState] = useState({
 //     Accelerator: '0',
 //     Break: '0',
@@ -49,7 +47,6 @@
 //     Sound: '0'
 //   });
 
-//   // Performance metrics
 //   const [performanceMetrics, setPerformanceMetrics] = useState({
 //     avgTemperature: 0,
 //     avgHumidity: 0,
@@ -78,7 +75,6 @@
         
 //         setVehicleData(newData);
 
-//         // Detect 0 to 1 transitions and log timestamps
 //         const currentTime = new Date();
 //         const formattedTime = currentTime.toLocaleString('en-IN', { 
 //           hour: '2-digit', 
@@ -91,7 +87,6 @@
 //         let newLogs = [];
 //         let updatedCounts = { ...activationCounts };
 
-//         // Check each control for 0 to 1 transition
 //         ['Accelerator', 'Break', 'Clutch', 'Sound'].forEach(control => {
 //           if (previousState[control] === '0' && newData[control] === '1') {
 //             newLogs.push({
@@ -104,11 +99,10 @@
 //         });
 
 //         if (newLogs.length > 0) {
-//           setActivationLogs(prev => [...newLogs, ...prev].slice(0, 50)); // Keep last 50 logs
+//           setActivationLogs(prev => [...newLogs, ...prev].slice(0, 50));
 //           setActivationCounts(updatedCounts);
 //         }
 
-//         // Update previous state
 //         setPreviousState({
 //           Accelerator: newData.Accelerator,
 //           Break: newData.Break,
@@ -116,7 +110,6 @@
 //           Sound: newData.Sound
 //         });
 
-//         // Update history for graphs
 //         const timestamp = currentTime.toLocaleTimeString();
         
 //         setHistoryData(prev => {
@@ -129,7 +122,6 @@
 //           }];
 //           const slicedData = updated.slice(-20);
 
-//           // Calculate performance metrics
 //           if (slicedData.length > 0) {
 //             const temps = slicedData.map(d => d.Temperature);
 //             const humidities = slicedData.map(d => d.Humidity);
@@ -173,7 +165,6 @@
 //     return value === '1';
 //   };
 
-//   // Prepare data for pie chart
 //   const activationPieData = [
 //     { name: 'Accelerator', value: activationCounts.Accelerator, color: '#4CAF50' },
 //     { name: 'Break', value: activationCounts.Break, color: '#F44336' },
@@ -437,26 +428,22 @@
 //           color: #333;
 //         }
 
-//         .chart-section {
-//           display: grid;
-//           grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-//           gap: 20px;
-//           margin-top: 20px;
-//         }
-
 //         .chart-card {
 //           background: white;
 //           border-radius: 15px;
 //           padding: 25px;
 //           box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+//           margin-bottom: 20px;
 //         }
 
 //         .chart-title {
 //           color: #333;
-//           font-size: 20px;
+//           font-size: 22px;
 //           font-weight: 600;
 //           margin-bottom: 20px;
 //           text-align: center;
+//           border-bottom: 3px solid #667eea;
+//           padding-bottom: 10px;
 //         }
 
 //         .metrics-grid {
@@ -564,10 +551,6 @@
 //           .dashboard-header {
 //             flex-direction: column;
 //             gap: 15px;
-//           }
-
-//           .chart-section {
-//             grid-template-columns: 1fr;
 //           }
 //         }
 //       `}</style>
@@ -755,81 +738,196 @@
 //           </div>
 //         </div>
 
-//         {/* Charts Section */}
-//         <div className="chart-section">
-//           {/* Environmental Sensors Line Chart */}
-//           <div className="chart-card">
-//             <h3 className="chart-title">Environmental Sensors Over Time</h3>
-//             <ResponsiveContainer width="100%" height={300}>
-//               <LineChart data={historyData}>
-//                 <CartesianGrid strokeDasharray="3 3" />
-//                 <XAxis dataKey="time" tick={{fontSize: 12}} />
-//                 <YAxis />
-//                 <Tooltip />
-//                 <Legend />
-//                 <Line type="monotone" dataKey="Humidity" stroke="#2196F3" strokeWidth={2} dot={false} />
-//                 <Line type="monotone" dataKey="Temperature" stroke="#FF5722" strokeWidth={2} dot={false} />
-//                 <Line type="monotone" dataKey="Vibration" stroke="#9C27B0" strokeWidth={2} dot={false} />
-//               </LineChart>
-//             </ResponsiveContainer>
-//           </div>
+//         {/* Graph 1: Humidity Line Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">📊 Humidity Over Time</h3>
+//           <ResponsiveContainer width="100%" height={350}>
+//             <AreaChart data={historyData}>
+//               <defs>
+//                 <linearGradient id="colorHumidity" x1="0" y1="0" x2="0" y2="1">
+//                   <stop offset="5%" stopColor="#2196F3" stopOpacity={0.8}/>
+//                   <stop offset="95%" stopColor="#2196F3" stopOpacity={0}/>
+//                 </linearGradient>
+//               </defs>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis label={{ value: 'Humidity (%)', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Area type="monotone" dataKey="Humidity" stroke="#2196F3" fillOpacity={1} fill="url(#colorHumidity)" />
+//             </AreaChart>
+//           </ResponsiveContainer>
+//         </div>
 
-//           {/* Oil Level Line Chart */}
-//           <div className="chart-card">
-//             <h3 className="chart-title">Oil Level Over Time</h3>
-//             <ResponsiveContainer width="100%" height={300}>
-//               <LineChart data={historyData}>
-//                 <CartesianGrid strokeDasharray="3 3" />
-//                 <XAxis dataKey="time" tick={{fontSize: 12}} />
-//                 <YAxis />
-//                 <Tooltip />
-//                 <Legend />
-//                 <Line type="monotone" dataKey="Oil" stroke="#667eea" strokeWidth={3} dot={false} />
-//               </LineChart>
-//             </ResponsiveContainer>
-//           </div>
+//         {/* Graph 2: Temperature Line Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">🌡️ Temperature Over Time</h3>
+//           <ResponsiveContainer width="100%" height={350}>
+//             <LineChart data={historyData}>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis label={{ value: 'Temperature (°C)', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Line type="monotone" dataKey="Temperature" stroke="#FF5722" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+//             </LineChart>
+//           </ResponsiveContainer>
+//         </div>
 
-//           {/* Activation Count Pie Chart */}
-//           <div className="chart-card">
-//             <h3 className="chart-title">Control Activation Distribution</h3>
-//             <ResponsiveContainer width="100%" height={300}>
-//               <PieChart>
-//                 <Pie
-//                   data={activationPieData}
-//                   cx="50%"
-//                   cy="50%"
-//                   labelLine={false}
-//                   label={({ name, value }) => `${name}: ${value}`}
-//                   outerRadius={100}
-//                   fill="#8884d8"
-//                   dataKey="value"
-//                 >
-//                   {activationPieData.map((entry, index) => (
-//                     <Cell key={`cell-${index}`} fill={entry.color} />
-//                   ))}
-//                 </Pie>
-//                 <Tooltip />
-//               </PieChart>
-//             </ResponsiveContainer>
-//           </div>
+//         {/* Graph 3: Vibration Line Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">📳 Vibration Over Time</h3>
+//           <ResponsiveContainer width="100%" height={350}>
+//             <LineChart data={historyData}>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis label={{ value: 'Vibration', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Line type="monotone" dataKey="Vibration" stroke="#9C27B0" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+//             </LineChart>
+//           </ResponsiveContainer>
+//         </div>
 
-//           {/* Control Status Bar Chart */}
-//           <div className="chart-card">
-//             <h3 className="chart-title">Control Status History</h3>
-//             <ResponsiveContainer width="100%" height={300}>
-//               <BarChart data={controlHistory}>
-//                 <CartesianGrid strokeDasharray="3 3" />
-//                 <XAxis dataKey="time" tick={{fontSize: 12}} />
-//                 <YAxis domain={[0, 1]} ticks={[0, 1]} />
-//                 <Tooltip />
-//                 <Legend />
-//                 <Bar dataKey="Accelerator" fill="#4CAF50" />
-//                 <Bar dataKey="Break" fill="#F44336" />
-//                 <Bar dataKey="Clutch" fill="#FF9800" />
-//                 <Bar dataKey="Sound" fill="#E91E63" />
-//               </BarChart>
-//             </ResponsiveContainer>
-//           </div>
+//         {/* Graph 4: Oil Level Line Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">🛢️ Oil Level Over Time</h3>
+//           <ResponsiveContainer width="100%" height={350}>
+//             <AreaChart data={historyData}>
+//               <defs>
+//                 <linearGradient id="colorOil" x1="0" y1="0" x2="0" y2="1">
+//                   <stop offset="5%" stopColor="#667eea" stopOpacity={0.8}/>
+//                   <stop offset="95%" stopColor="#764ba2" stopOpacity={0.3}/>
+//                 </linearGradient>
+//               </defs>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis label={{ value: 'Oil Level (L)', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Area type="monotone" dataKey="Oil" stroke="#667eea" strokeWidth={2} fillOpacity={1} fill="url(#colorOil)" />
+//             </AreaChart>
+//           </ResponsiveContainer>
+//         </div>
+
+//         {/* Graph 5: Environmental Sensors Combined */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">🌍 All Environmental Sensors Combined</h3>
+//           <ResponsiveContainer width="100%" height={400}>
+//             <LineChart data={historyData}>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis />
+//               <Tooltip />
+//               <Legend />
+//               <Line type="monotone" dataKey="Humidity" stroke="#2196F3" strokeWidth={2} dot={false} />
+//               <Line type="monotone" dataKey="Temperature" stroke="#FF5722" strokeWidth={2} dot={false} />
+//               <Line type="monotone" dataKey="Vibration" stroke="#9C27B0" strokeWidth={2} dot={false} />
+//             </LineChart>
+//           </ResponsiveContainer>
+//         </div>
+
+//         {/* Graph 6: Accelerator Status Bar Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">🚗 Accelerator Status History</h3>
+//           <ResponsiveContainer width="100%" height={350}>
+//             <BarChart data={controlHistory}>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Bar dataKey="Accelerator" fill="#4CAF50" />
+//             </BarChart>
+//           </ResponsiveContainer>
+//         </div>
+
+//         {/* Graph 7: Break Status Bar Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">🛑 Break Status History</h3>
+//           <ResponsiveContainer width="100%" height={350}>
+//             <BarChart data={controlHistory}>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Bar dataKey="Break" fill="#F44336" />
+//             </BarChart>
+//           </ResponsiveContainer>
+//         </div>
+
+//         {/* Graph 8: Clutch Status Bar Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">⚙️ Clutch Status History</h3>
+//           <ResponsiveContainer width="100%" height={350}>
+//             <BarChart data={controlHistory}>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Bar dataKey="Clutch" fill="#FF9800" />
+//             </BarChart>
+//           </ResponsiveContainer>
+//         </div>
+
+//         {/* Graph 9: Sound Alert Bar Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">🔊 Sound Alert History</h3>
+//           <ResponsiveContainer width="100%" height={350}>
+//             <BarChart data={controlHistory}>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Bar dataKey="Sound" fill="#E91E63" />
+//             </BarChart>
+//           </ResponsiveContainer>
+//         </div>
+
+//         {/* Graph 10: All Controls Combined Bar Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">🎛️ All Control Status History (Combined)</h3>
+//           <ResponsiveContainer width="100%" height={400}>
+//             <BarChart data={controlHistory}>
+//               <CartesianGrid strokeDasharray="3 3" />
+//               <XAxis dataKey="time" tick={{fontSize: 12}} />
+//               <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
+//               <Tooltip />
+//               <Legend />
+//               <Bar dataKey="Accelerator" fill="#4CAF50" />
+//               <Bar dataKey="Break" fill="#F44336" />
+//               <Bar dataKey="Clutch" fill="#FF9800" />
+//               <Bar dataKey="Sound" fill="#E91E63" />
+//             </BarChart>
+//           </ResponsiveContainer>
+//         </div>
+
+//         {/* Graph 11: Control Activation Distribution Pie Chart */}
+//         <div className="chart-card">
+//           <h3 className="chart-title">📈 Control Activation Distribution</h3>
+//           <ResponsiveContainer width="100%" height={400}>
+//             <PieChart>
+//               <Pie
+//                 data={activationPieData}
+//                 cx="50%"
+//                 cy="50%"
+//                 labelLine={true}
+//                 label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+//                 outerRadius={120}
+//                 fill="#8884d8"
+//                 dataKey="value"
+//               >
+//                 {activationPieData.map((entry, index) => (
+//                   <Cell key={`cell-${index}`} fill={entry.color} />
+//                 ))}
+//               </Pie>
+//               <Tooltip />
+//               <Legend />
+//             </PieChart>
+//           </ResponsiveContainer>
 //         </div>
 //       </div>
 //     </>
@@ -899,6 +997,164 @@ const VehicleDashboard = () => {
     oilConsumption: 0
   });
 
+  // New: Track activation frequency for suggestions
+  const [activationTimestamps, setActivationTimestamps] = useState({
+    Accelerator: [],
+    Break: [],
+    Clutch: []
+  });
+
+  const [suggestions, setSuggestions] = useState([]);
+
+  // Analyze driving patterns and generate suggestions
+  const analyzeDrivingPattern = (control, timestamps) => {
+    const now = Date.now();
+    const recentActivations = timestamps.filter(t => now - t < 60000); // Last 1 minute
+    const veryRecentActivations = timestamps.filter(t => now - t < 30000); // Last 30 seconds
+    
+    let newSuggestions = [];
+
+    // Check for excessive frequency
+    if (recentActivations.length >= 10) {
+      if (control === 'Accelerator') {
+        newSuggestions.push({
+          type: 'danger',
+          icon: '⚠️',
+          title: 'Dangerous Driving Detected!',
+          message: 'Excessive accelerator usage detected. You are frequently pressing the accelerator which may indicate aggressive driving or panic. Please drive calmly and maintain steady speed.',
+          control: 'Accelerator'
+        });
+      } else if (control === 'Break') {
+        newSuggestions.push({
+          type: 'danger',
+          icon: '🚨',
+          title: 'Critical: Frequent Braking!',
+          message: 'You are braking too frequently. This indicates possible tailgating, distracted driving, or road hazards ahead. Maintain safe distance and reduce speed.',
+          control: 'Break'
+        });
+      } else if (control === 'Clutch') {
+        newSuggestions.push({
+          type: 'danger',
+          icon: '⚙️',
+          title: 'Clutch Overuse Warning!',
+          message: 'Excessive clutch engagement detected. This can cause clutch wear and potential mechanical failure. Avoid riding the clutch and shift gears smoothly.',
+          control: 'Clutch'
+        });
+      }
+    } else if (recentActivations.length >= 6) {
+      if (control === 'Accelerator') {
+        newSuggestions.push({
+          type: 'warning',
+          icon: '⚡',
+          title: 'Moderate Accelerator Activity',
+          message: 'Multiple accelerator presses detected. Consider maintaining steady throttle for better fuel efficiency and smoother ride.',
+          control: 'Accelerator'
+        });
+      } else if (control === 'Break') {
+        newSuggestions.push({
+          type: 'warning',
+          icon: '🛑',
+          title: 'Brake Usage Alert',
+          message: 'Frequent braking detected. Check traffic conditions and maintain safe following distance. Consider anticipating stops earlier.',
+          control: 'Break'
+        });
+      } else if (control === 'Clutch') {
+        newSuggestions.push({
+          type: 'warning',
+          icon: '🔧',
+          title: 'Clutch Usage Caution',
+          message: 'Moderate clutch activity detected. Ensure smooth gear transitions to extend clutch life and improve driving comfort.',
+          control: 'Clutch'
+        });
+      }
+    }
+
+    // Check for very rapid successive activations (within 30 seconds)
+    if (veryRecentActivations.length >= 5) {
+      newSuggestions.push({
+        type: 'critical',
+        icon: '🚨',
+        title: `CRITICAL: Rapid ${control} Changes!`,
+        message: `Your vehicle is experiencing rapid ${control.toLowerCase()} changes. This is extremely dangerous! Pull over safely if possible and check vehicle condition. You may be in a hazardous situation.`,
+        control: control
+      });
+    }
+
+    return newSuggestions;
+  };
+
+  // Combined pattern analysis
+  const analyzeCombinedPattern = () => {
+    const now = Date.now();
+    let combinedSuggestions = [];
+
+    // Check if all three controls are being used frequently
+    const recentAccelerator = activationTimestamps.Accelerator.filter(t => now - t < 60000).length;
+    const recentBreak = activationTimestamps.Break.filter(t => now - t < 60000).length;
+    const recentClutch = activationTimestamps.Clutch.filter(t => now - t < 60000).length;
+
+    if (recentAccelerator >= 5 && recentBreak >= 5 && recentClutch >= 5) {
+      combinedSuggestions.push({
+        type: 'critical',
+        icon: '🚨',
+        title: 'EMERGENCY: Erratic Driving Pattern!',
+        message: 'All vehicle controls are being used excessively! This indicates possible emergency situation, medical emergency, or vehicle malfunction. Pull over immediately if safe to do so.',
+        control: 'Combined'
+      });
+    } else if (recentAccelerator >= 3 && recentBreak >= 3) {
+      combinedSuggestions.push({
+        type: 'warning',
+        icon: '⚠️',
+        title: 'Stop-and-Go Traffic Detected',
+        message: 'Frequent acceleration and braking detected. You may be in heavy traffic. Stay alert, maintain distance, and consider alternative routes.',
+        control: 'Combined'
+      });
+    }
+
+    // Oil level check
+    if (vehicleData.Oil < 2) {
+      combinedSuggestions.push({
+        type: 'danger',
+        icon: '🛢️',
+        title: 'Low Oil Level Warning!',
+        message: `Oil level is critically low (${vehicleData.Oil}L). Stop the vehicle and add oil immediately to prevent engine damage.`,
+        control: 'Oil'
+      });
+    } else if (vehicleData.Oil < 4) {
+      combinedSuggestions.push({
+        type: 'warning',
+        icon: '🛢️',
+        title: 'Oil Level Low',
+        message: `Oil level is below optimal (${vehicleData.Oil}L). Plan to refill soon to maintain engine health.`,
+        control: 'Oil'
+      });
+    }
+
+    // Temperature check
+    if (vehicleData.Temperature > 40) {
+      combinedSuggestions.push({
+        type: 'danger',
+        icon: '🌡️',
+        title: 'High Temperature Alert!',
+        message: `Engine temperature is high (${vehicleData.Temperature.toFixed(2)}°C). Risk of overheating. Check coolant levels and allow engine to cool.`,
+        control: 'Temperature'
+      });
+    }
+
+    // Vibration check
+    if (Math.abs(vehicleData.Vibration) > 0.05) {
+      combinedSuggestions.push({
+        type: 'warning',
+        icon: '📳',
+        title: 'Excessive Vibration Detected',
+        message: `Abnormal vibration levels detected (${vehicleData.Vibration.toFixed(5)}). Check tire balance, alignment, and suspension system.`,
+        control: 'Vibration'
+      });
+    }
+
+    return combinedSuggestions;
+  };
+
   useEffect(() => {
     const vehicleRef = ref(database, 'Vehicle_predictive');
     
@@ -919,6 +1175,7 @@ const VehicleDashboard = () => {
         setVehicleData(newData);
 
         const currentTime = new Date();
+        const timestamp = currentTime.getTime();
         const formattedTime = currentTime.toLocaleString('en-IN', { 
           hour: '2-digit', 
           minute: '2-digit', 
@@ -929,7 +1186,10 @@ const VehicleDashboard = () => {
 
         let newLogs = [];
         let updatedCounts = { ...activationCounts };
+        let updatedTimestamps = { ...activationTimestamps };
+        let allSuggestions = [];
 
+        // Check each control for 0 to 1 transition
         ['Accelerator', 'Break', 'Clutch', 'Sound'].forEach(control => {
           if (previousState[control] === '0' && newData[control] === '1') {
             newLogs.push({
@@ -938,12 +1198,38 @@ const VehicleDashboard = () => {
               time: formattedTime
             });
             updatedCounts[control] += 1;
+
+            // Track timestamps for Accelerator, Break, Clutch
+            if (['Accelerator', 'Break', 'Clutch'].includes(control)) {
+              updatedTimestamps[control] = [...updatedTimestamps[control], timestamp];
+              
+              // Analyze pattern for this control
+              const controlSuggestions = analyzeDrivingPattern(control, updatedTimestamps[control]);
+              allSuggestions = [...allSuggestions, ...controlSuggestions];
+            }
           }
         });
 
         if (newLogs.length > 0) {
           setActivationLogs(prev => [...newLogs, ...prev].slice(0, 50));
           setActivationCounts(updatedCounts);
+          setActivationTimestamps(updatedTimestamps);
+        }
+
+        // Analyze combined patterns
+        const combinedSuggestions = analyzeCombinedPattern();
+        allSuggestions = [...allSuggestions, ...combinedSuggestions];
+
+        // Update suggestions (remove duplicates and keep latest 10)
+        if (allSuggestions.length > 0) {
+          setSuggestions(prev => {
+            const combined = [...allSuggestions, ...prev];
+            // Remove duplicates based on title
+            const unique = combined.filter((item, index, self) =>
+              index === self.findIndex((t) => t.title === item.title)
+            );
+            return unique.slice(0, 10);
+          });
         }
 
         setPreviousState({
@@ -953,11 +1239,11 @@ const VehicleDashboard = () => {
           Sound: newData.Sound
         });
 
-        const timestamp = currentTime.toLocaleTimeString();
+        const timeStr = currentTime.toLocaleTimeString();
         
         setHistoryData(prev => {
           const updated = [...prev, {
-            time: timestamp,
+            time: timeStr,
             Humidity: parseFloat(newData.Humidity),
             Temperature: parseFloat(newData.Temperature),
             Vibration: parseFloat(newData.Vibration) * 100,
@@ -986,7 +1272,7 @@ const VehicleDashboard = () => {
 
         setControlHistory(prev => {
           const updated = [...prev, {
-            time: timestamp,
+            time: timeStr,
             Accelerator: newData.Accelerator === '1' ? 1 : 0,
             Break: newData.Break === '1' ? 1 : 0,
             Clutch: newData.Clutch === '1' ? 1 : 0,
@@ -998,7 +1284,7 @@ const VehicleDashboard = () => {
     });
 
     return () => unsubscribe();
-  }, [previousState, activationCounts]);
+  }, [previousState, activationCounts, activationTimestamps, vehicleData.Oil, vehicleData.Temperature, vehicleData.Vibration]);
 
   const getStatusColor = (value) => {
     return value === '1' ? '#4CAF50' : '#e0e0e0';
@@ -1006,6 +1292,19 @@ const VehicleDashboard = () => {
 
   const getAlertStatus = (value) => {
     return value === '1';
+  };
+
+  const getSuggestionStyle = (type) => {
+    switch(type) {
+      case 'critical':
+        return { backgroundColor: '#d32f2f', borderColor: '#b71c1c' };
+      case 'danger':
+        return { backgroundColor: '#f44336', borderColor: '#d32f2f' };
+      case 'warning':
+        return { backgroundColor: '#ff9800', borderColor: '#f57c00' };
+      default:
+        return { backgroundColor: '#2196F3', borderColor: '#1976D2' };
+    }
   };
 
   const activationPieData = [
@@ -1078,6 +1377,82 @@ const VehicleDashboard = () => {
             opacity: 0.5;
             transform: scale(1.1);
           }
+        }
+
+        .suggestions-container {
+          margin-bottom: 30px;
+        }
+
+        .suggestion-card {
+          background: white;
+          border-radius: 15px;
+          padding: 20px;
+          margin-bottom: 15px;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          border-left: 6px solid;
+          animation: slideIn 0.5s ease-out;
+          transition: all 0.3s ease;
+        }
+
+        @keyframes slideIn {
+          from {
+            transform: translateX(-100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+
+        .suggestion-card:hover {
+          transform: translateX(10px);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .suggestion-header {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 10px;
+        }
+
+        .suggestion-icon {
+          font-size: 32px;
+          animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+
+        .suggestion-title {
+          font-size: 20px;
+          font-weight: bold;
+          color: #333;
+        }
+
+        .suggestion-message {
+          font-size: 16px;
+          color: #555;
+          line-height: 1.6;
+          margin-left: 47px;
+        }
+
+        .suggestion-control {
+          display: inline-block;
+          background: rgba(0,0,0,0.1);
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          margin-top: 8px;
+          margin-left: 47px;
         }
 
         .dashboard-grid {
@@ -1407,6 +1782,26 @@ const VehicleDashboard = () => {
           </div>
         </div>
 
+        {/* AI Suggestions Section */}
+        {suggestions.length > 0 && (
+          <div className="suggestions-container">
+            {suggestions.map((suggestion, index) => (
+              <div 
+                key={index} 
+                className="suggestion-card" 
+                style={getSuggestionStyle(suggestion.type)}
+              >
+                <div className="suggestion-header">
+                  <span className="suggestion-icon">{suggestion.icon}</span>
+                  <span className="suggestion-title">{suggestion.title}</span>
+                </div>
+                <p className="suggestion-message">{suggestion.message}</p>
+                <span className="suggestion-control">Control: {suggestion.control}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Performance Metrics Section */}
         <div className="card full-width-card">
           <div className="card-header">
@@ -1581,174 +1976,7 @@ const VehicleDashboard = () => {
           </div>
         </div>
 
-        {/* Graph 1: Humidity Line Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">📊 Humidity Over Time</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <AreaChart data={historyData}>
-              <defs>
-                <linearGradient id="colorHumidity" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2196F3" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#2196F3" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis label={{ value: 'Humidity (%)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Area type="monotone" dataKey="Humidity" stroke="#2196F3" fillOpacity={1} fill="url(#colorHumidity)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 2: Temperature Line Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">🌡️ Temperature Over Time</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={historyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis label={{ value: 'Temperature (°C)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="Temperature" stroke="#FF5722" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 3: Vibration Line Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">📳 Vibration Over Time</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={historyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis label={{ value: 'Vibration', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="Vibration" stroke="#9C27B0" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 4: Oil Level Line Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">🛢️ Oil Level Over Time</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <AreaChart data={historyData}>
-              <defs>
-                <linearGradient id="colorOil" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#667eea" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#764ba2" stopOpacity={0.3}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis label={{ value: 'Oil Level (L)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Area type="monotone" dataKey="Oil" stroke="#667eea" strokeWidth={2} fillOpacity={1} fill="url(#colorOil)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 5: Environmental Sensors Combined */}
-        <div className="chart-card">
-          <h3 className="chart-title">🌍 All Environmental Sensors Combined</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={historyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="Humidity" stroke="#2196F3" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Temperature" stroke="#FF5722" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Vibration" stroke="#9C27B0" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 6: Accelerator Status Bar Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">🚗 Accelerator Status History</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={controlHistory}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Accelerator" fill="#4CAF50" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 7: Break Status Bar Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">🛑 Break Status History</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={controlHistory}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Break" fill="#F44336" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 8: Clutch Status Bar Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">⚙️ Clutch Status History</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={controlHistory}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Clutch" fill="#FF9800" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 9: Sound Alert Bar Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">🔊 Sound Alert History</h3>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={controlHistory}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Sound" fill="#E91E63" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 10: All Controls Combined Bar Chart */}
-        <div className="chart-card">
-          <h3 className="chart-title">🎛️ All Control Status History (Combined)</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={controlHistory}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{fontSize: 12}} />
-              <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Accelerator" fill="#4CAF50" />
-              <Bar dataKey="Break" fill="#F44336" />
-              <Bar dataKey="Clutch" fill="#FF9800" />
-              <Bar dataKey="Sound" fill="#E91E63" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Graph 11: Control Activation Distribution Pie Chart */}
+        {/* Control Activation Distribution Pie Chart */}
         <div className="chart-card">
           <h3 className="chart-title">📈 Control Activation Distribution</h3>
           <ResponsiveContainer width="100%" height={400}>
@@ -1770,6 +1998,41 @@ const VehicleDashboard = () => {
               <Tooltip />
               <Legend />
             </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* All Controls Combined Bar Chart */}
+        <div className="chart-card">
+          <h3 className="chart-title">🎛️ All Control Status History (Combined)</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={controlHistory}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="time" tick={{fontSize: 12}} />
+              <YAxis domain={[0, 1]} ticks={[0, 1]} label={{ value: 'Status (0/1)', angle: -90, position: 'insideLeft' }} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Accelerator" fill="#4CAF50" />
+              <Bar dataKey="Break" fill="#F44336" />
+              <Bar dataKey="Clutch" fill="#FF9800" />
+              <Bar dataKey="Sound" fill="#E91E63" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Environmental Sensors Combined */}
+        <div className="chart-card">
+          <h3 className="chart-title">🌍 All Environmental Sensors Combined</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart data={historyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="time" tick={{fontSize: 12}} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="Humidity" stroke="#2196F3" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Temperature" stroke="#FF5722" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Vibration" stroke="#9C27B0" strokeWidth={2} dot={false} />
+            </LineChart>
           </ResponsiveContainer>
         </div>
       </div>

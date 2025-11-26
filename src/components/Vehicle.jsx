@@ -943,6 +943,8 @@ import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -1314,6 +1316,197 @@ const VehicleDashboard = () => {
     { name: 'Sound', value: activationCounts.Sound, color: '#E91E63' }
   ];
 
+  // PDF Export Function
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const currentDate = new Date().toLocaleString('en-IN');
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.setTextColor(40, 40, 40);
+    doc.text('Vehicle Dashboard Report', 105, 20, { align: 'center' });
+    
+    // Add timestamp
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated: ${currentDate}`, 105, 28, { align: 'center' });
+    
+    let yPosition = 40;
+    
+    // Section 1: Current Vehicle Status
+    doc.setFontSize(14);
+    doc.setTextColor(40, 40, 40);
+    doc.text('Current Vehicle Status', 14, yPosition);
+    yPosition += 8;
+    
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Parameter', 'Value', 'Status']],
+      body: [
+        ['Accelerator', vehicleData.Accelerator, vehicleData.Accelerator === '1' ? 'Active' : 'Inactive'],
+        ['Break', vehicleData.Break, vehicleData.Break === '1' ? 'Active' : 'Inactive'],
+        ['Clutch', vehicleData.Clutch, vehicleData.Clutch === '1' ? 'Active' : 'Inactive'],
+        ['Sound Alert', vehicleData.Sound, vehicleData.Sound === '1' ? 'Alert Active' : 'Normal'],
+        ['Oil Level', `${vehicleData.Oil} L`, vehicleData.Oil < 2 ? 'Critical' : vehicleData.Oil < 4 ? 'Low' : 'Normal'],
+        ['Temperature', `${vehicleData.Temperature.toFixed(2)} °C`, vehicleData.Temperature > 40 ? 'High' : 'Normal'],
+        ['Humidity', `${vehicleData.Humidity.toFixed(2)} %`, 'Normal'],
+        ['Vibration', vehicleData.Vibration.toFixed(5), Math.abs(vehicleData.Vibration) > 0.05 ? 'Abnormal' : 'Normal']
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [102, 126, 234] },
+      margin: { top: 10 }
+    });
+    
+    yPosition = doc.lastAutoTable.finalY + 15;
+    
+    // Section 2: Control Activation Counts
+    doc.setFontSize(14);
+    doc.text('Control Activation Summary', 14, yPosition);
+    yPosition += 8;
+    
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Control', 'Total Activations']],
+      body: [
+        ['Accelerator', activationCounts.Accelerator.toString()],
+        ['Break', activationCounts.Break.toString()],
+        ['Clutch', activationCounts.Clutch.toString()],
+        ['Sound', activationCounts.Sound.toString()]
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [76, 175, 80] },
+      margin: { top: 10 }
+    });
+    
+    yPosition = doc.lastAutoTable.finalY + 15;
+    
+    // Section 3: Performance Metrics
+    if (yPosition > 250) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    doc.setFontSize(14);
+    doc.text('Performance Metrics', 14, yPosition);
+    yPosition += 8;
+    
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Average Temperature', `${performanceMetrics.avgTemperature} °C`],
+        ['Max Temperature', `${performanceMetrics.maxTemperature} °C`],
+        ['Min Temperature', `${performanceMetrics.minTemperature} °C`],
+        ['Average Humidity', `${performanceMetrics.avgHumidity} %`],
+        ['Average Vibration', performanceMetrics.avgVibration],
+        ['Oil Consumption', `${performanceMetrics.oilConsumption} L`]
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [33, 150, 243] },
+      margin: { top: 10 }
+    });
+    
+    yPosition = doc.lastAutoTable.finalY + 15;
+    
+    // Section 4: Recent Activation Logs
+    if (yPosition > 250 || activationLogs.length > 0) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    if (activationLogs.length > 0) {
+      doc.setFontSize(14);
+      doc.text('Recent Activation Logs (Last 20)', 14, yPosition);
+      yPosition += 8;
+      
+      const logsData = activationLogs.slice(0, 20).map(log => [
+        log.control,
+        log.timestamp
+      ]);
+      
+      autoTable(doc, {
+        startY: yPosition,
+        head: [['Control', 'Activation Timestamp']],
+        body: logsData,
+        theme: 'striped',
+        headStyles: { fillColor: [255, 152, 0] },
+        margin: { top: 10 }
+      });
+      
+      yPosition = doc.lastAutoTable.finalY + 15;
+    }
+    
+    // Section 5: Environmental Sensor History
+    if (historyData.length > 0) {
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.text('Environmental Sensor History (Last 10 Readings)', 14, yPosition);
+      yPosition += 8;
+      
+      const historyTableData = historyData.slice(-10).map(entry => [
+        entry.time,
+        entry.Temperature.toFixed(2),
+        entry.Humidity.toFixed(2),
+        entry.Vibration.toFixed(4)
+      ]);
+      
+      autoTable(doc, {
+        startY: yPosition,
+        head: [['Time', 'Temperature (°C)', 'Humidity (%)', 'Vibration']],
+        body: historyTableData,
+        theme: 'grid',
+        headStyles: { fillColor: [156, 39, 176] },
+        margin: { top: 10 }
+      });
+    }
+    
+    // Section 6: Driving Suggestions (if any)
+    if (suggestions.length > 0) {
+      doc.addPage();
+      yPosition = 20;
+      
+      doc.setFontSize(14);
+      doc.text('Driving Suggestions & Alerts', 14, yPosition);
+      yPosition += 8;
+      
+      const suggestionsData = suggestions.slice(0, 10).map(sug => [
+        sug.type.toUpperCase(),
+        sug.title,
+        sug.message
+      ]);
+      
+      autoTable(doc, {
+        startY: yPosition,
+        head: [['Type', 'Title', 'Message']],
+        body: suggestionsData,
+        theme: 'grid',
+        headStyles: { fillColor: [244, 67, 54] },
+        columnStyles: {
+          2: { cellWidth: 100 }
+        },
+        margin: { top: 10 }
+      });
+    }
+    
+    // Add footer to all pages
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+      doc.text('Vehicle Dashboard Report - Generated by System', 105, 285, { align: 'center' });
+    }
+    
+    // Save the PDF
+    const fileName = `Vehicle_Report_${new Date().toISOString().split('T')[0]}_${new Date().getTime()}.pdf`;
+    doc.save(fileName);
+  };
+
   return (
     <>
       <style>{`
@@ -1350,6 +1543,47 @@ const VehicleDashboard = () => {
           color: #333;
           font-size: 28px;
           font-weight: 600;
+        }
+
+        .export-pdf-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 25px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .export-pdf-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+          background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .export-pdf-btn:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .pdf-icon {
+          font-size: 20px;
+          animation: bounce-subtle 2s infinite;
+        }
+
+        @keyframes bounce-subtle {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-3px);
+          }
         }
 
         .live-indicator {
@@ -1776,9 +2010,15 @@ const VehicleDashboard = () => {
       <div className="dashboard-container">
         <div className="dashboard-header">
           <h1>Vehicle Predictive Dashboard</h1>
-          <div className="live-indicator">
-            <span className="live-dot"></span>
-            <span>Live</span>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <button className="export-pdf-btn" onClick={exportToPDF}>
+              <span className="pdf-icon">📄</span>
+              <span>Export PDF</span>
+            </button>
+            <div className="live-indicator">
+              <span className="live-dot"></span>
+              <span>Live</span>
+            </div>
           </div>
         </div>
 
